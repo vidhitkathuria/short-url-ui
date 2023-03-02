@@ -2,41 +2,49 @@ import React, { useState } from "react";
 
 import axios from "axios";
 const Home = () => {
-  let save = "";
   const [url, setUrl] = useState("");
-  const [short, setShort] = useState("");
-  const [shorts, setShorts] = useState([]);
-  const [urls, setUrls] = useState([]);
+  const [urlArr, setURLArr] = useState([]);
+
   const handleSubmit = async (e) => {
     try {
       //   console.log(url);
-      save = url;
-      console.log("hi this is", save);
+      //   console.log("hi this is", save);
       e.preventDefault();
       const res = await axios.post("http://localhost:5000/url", {
         url,
       });
-      setUrls([...urls, url]);
-      console.log(urls);
+      const obj = {
+        longURL: url,
+        shortURL: res.data.id,
+        noOfClick: 0,
+      };
+      setURLArr([...urlArr, obj]);
+      //   setUrls([...urls, url]);
+      //   console.log(urls);
       //   console.log("url saved", res.data);
-      setShort(res.data);
-      setShorts([...shorts, res.data]);
+      //   setShort(res.data);
+
       setUrl("");
       //   console.log("hello", short.id);
-      //   console.log("hi", shorts);
+      //   console.log("hi", urlArr);
     } catch (error) {
       console.error(error);
     }
   };
+
+  const handleClick = async(id) => {
+    const updatedURLArr = [...urlArr];
+
+    const res = await axios.get("")
+    updatedURLArr[id].noOfClick++;
+
+    setURLArr(updatedURLArr);
+  };
+
   return (
     <div>
       <h1>URL Shrinker</h1>
-      <form
-        action=""
-        className="form-inline d-flex "
-        method="POST"
-        onSubmit={handleSubmit}
-      >
+      <form className="form-inline d-flex " onSubmit={handleSubmit}>
         <input
           type="text"
           placeholder="Enter URL"
@@ -48,8 +56,8 @@ const Home = () => {
           Submit
         </button>
       </form>
-      <ul>
-        {shorts.map((short) => (
+      {/* <ul>
+        {urlArr.map((short) => (
           <li key={short.id}>
             Short URL:{" "}
             <a
@@ -61,7 +69,7 @@ const Home = () => {
             </a>
           </li>
         ))}
-      </ul>
+      </ul> */}
       <table>
         <thead>
           <tr>
@@ -71,15 +79,19 @@ const Home = () => {
           </tr>
         </thead>
         <tbody>
-          {shorts.map((short) => (
-            <tr key={short.id}>
-              <td>{save}</td>
+          {urlArr.map((short, id) => (
+            <tr key={short.shortURL}>
+              <td>{short.longURL}</td>
               <td>
-                <a href={`http://localhost:5000/${short.id}`}>
-                  http://localhost:5000/${short.id}
+                <a
+                  href={`http://localhost:5000/${short.shortURL}`}
+                  target="_blank"
+                  onClick={() => handleClick(id)}
+                >
+                  {"http://localhost:5000/" + short.shortURL}
                 </a>
               </td>
-              <td>User 1 clicks</td>
+              <td>User {short.noOfClick} clicks</td>
             </tr>
           ))}
         </tbody>
